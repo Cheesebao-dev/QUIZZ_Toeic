@@ -2,7 +2,142 @@
   const TOTAL_QUESTIONS = 30;
   const DURATION_SECONDS = 12 * 60;
   const HISTORY_KEY = 'toeicPart5QuizHistory:v1';
-  const bank = Array.isArray(window.QUESTION_BANK) ? window.QUESTION_BANK : [];
+  const QUESTION_FIXES = {
+    'T1-102': { options: { D: 'himself' } },
+    'T1-106': { options: { D: 'having kept' } },
+    'T1-108': {
+      question: 'Donors to nonprofit organizations receive _____ tax benefits under the province\'s new tax policy.',
+      options: { B: 'generous', C: 'enthusiastic' },
+    },
+    'T1-109': { options: { D: 'Until' } },
+    'T1-110': { question: 'The Steppville Star Award honors citizens who have made _____ contributions to the community.' },
+    'T1-111': {
+      question: 'The Drayton supermarket chain claims that the _____ of its frozen foods is carried out via state-of-the-art refrigerated trucks.',
+    },
+    'T1-113': { answer: 'D', options: { D: 'profitable' } },
+    'T1-114': {
+      question: 'Market research shows that most people _____ Hardwood Gym\'s membership fee pricing very reasonable.',
+    },
+    'T1-115': {
+      question: 'Regardless of _____ goods are being stored there at the moment, the warehouse must be secured at night.',
+      options: { C: 'whether' },
+    },
+    'T1-117': { options: { A: 'potentially' } },
+    'T1-119': {
+      question: 'There is _____ more skilled at attracting positive media attention than our new head of public relations.',
+      options: { B: 'anyone', D: 'no one' },
+    },
+    'T1-120': {
+      question: '_____ the projector in the conference room broke down, the IT team was able to fix it before the meeting was scheduled to start.',
+      options: { C: 'Although' },
+    },
+    'T1-121': {
+      question: 'Ms. Cardenas is trying to improve her career _____ by earning additional qualifications.',
+      options: { D: 'obstacles' },
+    },
+    'T1-122': { question: 'Many reviews of Silver Sword give special praise to its director for the thrilling action scene _____ the end of the film.' },
+    'T1-123': {
+      question: 'The interior decorator explained that measuring the lobby\'s dimensions _____ was an important part of her planning process.',
+      answer: 'B',
+    },
+    'T1-124': {
+      question: '_____ its limited collection of artworks, the Zielinski Museum consistently attracts remarkable numbers of visitors.',
+      options: { D: 'Rather than' },
+    },
+    'T1-126': { question: 'The state environmental agency has made _____ progress in reducing air pollution.' },
+    'T1-129': {
+      question: 'No other salesperson at Jinkwang Laboratories can speak _____ about the advantages of its medical devices than Vincent Cobb.',
+    },
+    'T2-105': { answer: 'B', options: { B: 'at' } },
+    'T2-106': { answer: 'B', options: { B: 'accessible' } },
+    'T2-107': { question: 'Nia Aldridge has shown _____ for learning the skills needed to become a software engineer.' },
+    'T2-109': { answer: 'A' },
+    'T2-110': { question: 'The employee picnic celebrating the start of summer may need to be postponed if the rain _____.' },
+    'T2-111': { question: 'Ever since the Dwyerton Building\'s construction, its architecture has been considered the most _____ in the city.' },
+    'T2-112': {
+      question: 'UBN Tours will offer daily walking tours of downtown Peralta _____ this week.',
+      answer: 'C',
+      options: { B: 'from' },
+    },
+    'T2-113': {
+      question: 'The management team of Shelzan Pharmaceuticals has developed a _____ for expanding its operations into China within a few years.',
+      answer: 'C',
+    },
+    'T2-115': { answer: 'C', options: { D: 'Although' } },
+    'T2-116': {
+      question: 'For the premiere of its new film, Lofton Studios\'s publicity team has been instructed to reserve the largest theater _____.',
+      options: { D: 'available' },
+    },
+    'T2-118': { options: { C: 'Within' } },
+    'T2-119': { question: 'Planning committee members were proud that the final cost of the project matched their initial estimate _____.', answer: 'D' },
+    'T2-120': { answer: 'B' },
+    'T2-122': { question: 'Clury Insurance made a _____ donation to charity on its tenth anniversary in business.' },
+    'T2-124': { answer: 'A' },
+    'T2-126': { answer: 'B' },
+    'T2-129': { answer: 'C' },
+    'T2-130': { question: 'Following Thursday\'s training, Ms. Adkins acknowledged the advantages of the new database software.' },
+    'T3-104': { question: 'Prospective students are invited to learn more about the university\'s programs by viewing its _____ course schedule.', answer: 'A' },
+    'T3-105': { question: 'At Hartway Terrace, all dishes are prepared under the _____ of master chef Yoo-Jeong Jin.', answer: 'D' },
+    'T3-107': { options: { A: 'by' } },
+    'T3-108': { options: { C: 'commended' } },
+    'T3-109': { question: 'Residential furnaces and boilers should undergo inspection _____ for safety reasons.' },
+    'T3-110': { question: 'To maintain client _____, the destruction of old files must be carried out carefully.' },
+    'T3-111': { answer: 'A' },
+    'T3-114': { question: 'Employees who are _____ for exceeding their output goals are more likely to maintain a high level of productivity.' },
+    'T3-115': { answer: 'A' },
+    'T3-116': { options: { A: 'yet', B: 'too', C: 'already' } },
+    'T3-117': { options: { A: 'grows' } },
+    'T3-118': { question: 'The opening of the community center was only possible through the public\'s _____ support.', answer: 'A' },
+    'T3-121': { answer: 'D' },
+    'T3-122': { question: 'The focus of the board members is _____ investors react to the news of the CEO\'s retirement.' },
+    'T3-123': { question: 'The program coordinator asked staff to circulate the volunteer recruitment post _____ using their personal social media accounts.' },
+    'T3-125': { options: { D: 'has constructed' } },
+    'T3-126': { answer: 'B' },
+    'T3-130': { answer: 'D' },
+    'T4-101': { question: 'Each participant in the debate will have an _____ amount of speaking time.', options: { D: 'equal' } },
+    'T4-102': { question: 'A recent study by Melbourne University researchers _____ that blue-light glasses may not actually prevent eye strain.', options: { D: 'suggestion' } },
+    'T4-103': { options: { C: 'during' } },
+    'T4-104': { question: 'Next summer, all guests at Ankville-area hotels _____ a booklet of coupons for local attractions.' },
+    'T4-108': { question: 'Yowton City\'s plans to build a wind farm were canceled in _____ to opposition from residents.' },
+    'T4-111': { question: 'Ms. Waggoner has directed the billing department to keep any _____ with clients regarding payment.' },
+    'T4-112': { options: { C: 'inclusive' } },
+    'T4-113': { options: { B: 'by' } },
+    'T4-115': {
+      question: 'In spite of the high temperatures outdoors on the day of our appointment, Ms. Delvay _____ inspected the exterior of the property.',
+      answer: 'D',
+      options: { A: 'considerably', D: 'thoroughly' },
+    },
+    'T4-117': {
+      question: 'Demand for public transportation has grown _____ the capacity of the city\'s current infrastructure.',
+      options: { B: 'up' },
+    },
+    'T4-118': { question: 'To arrange a special tour of the museum _____ our normal opening hours, please call 555-0149.', options: { B: 'while' } },
+    'T4-122': { options: { D: 'availability' } },
+    'T4-125': {
+      question: 'The Gimdan Company supplies _____ industries, including packaging, automotive, and construction, with made-to-order plastics.',
+      answer: 'A',
+      options: { B: 'instant' },
+    },
+    'T4-128': { options: { D: 'else' } },
+    'T4-130': { answer: 'A' },
+    'T5-101': { options: { B: 'and' } },
+    'T5-102': { question: 'Mr. Fletcher was transferred to another branch after _____ department was eliminated in the corporate restructuring.', options: { C: 'his' } },
+    'T5-105': { answer: 'B' },
+    'T5-106': { question: 'Problems with the air purifier may _____ either from incorrect storage or the use of the wrong filters.', answer: 'C' },
+    'T5-108': { question: 'Ms. Burke will encourage the staff to donate canned goods _____ she did during the holidays last year.', answer: 'C' },
+    'T5-109': { question: 'The pharmacy\'s medications and supplements must be _____ labeled.' },
+    'T5-110': { question: 'Bayside Financial has expanded its customer base by an impressive ninety percent _____ the past five years.', options: { A: 'by' } },
+    'T5-111': { question: 'You must assess all aspects of the properties before _____ which best suits your personal circumstances.' },
+    'T5-112': { question: 'FT Supplies\' headquarters building was _____ used as a ceramics factory because the surrounding area is rich in clay deposits.' },
+    'T5-118': { options: { B: 'prior to' } },
+    'T5-119': { question: 'The café, _____ caters to vegan and vegetarian diners, has received positive reviews so far.', options: { D: 'it' } },
+    'T5-124': { options: { D: 'withstand' } },
+    'T5-125': { options: { C: 'quite' } },
+    'T5-126': { answer: 'C', options: { C: 'attentive' } },
+    'T5-127': { answer: 'A' },
+  };
+  const rawBank = Array.isArray(window.QUESTION_BANK) ? window.QUESTION_BANK : [];
+  const bank = rawBank.map(applyQuestionFixes);
 
   const els = {
     startView: document.getElementById('startView'),
@@ -62,6 +197,21 @@
       [copy[i], copy[j]] = [copy[j], copy[i]];
     }
     return copy;
+  }
+
+  function applyQuestionFixes(question) {
+    const fix = QUESTION_FIXES[question.id];
+    if (!fix) return question;
+
+    return {
+      ...question,
+      question: fix.question || question.question,
+      answer: fix.answer || question.answer,
+      options: question.options.map((option) => ({
+        ...option,
+        text: fix.options?.[option.letter] || option.text,
+      })),
+    };
   }
 
   function startAttempt() {
@@ -371,16 +521,20 @@
 
   function renderMistakeHistory(history) {
     const weakItems = getWeakQuestions(history, 5);
-    els.mistakePanel.hidden = weakItems.length === 0;
-    els.mistakeList.replaceChildren(...weakItems.map(createWeakItem));
+    els.mistakePanel.hidden = false;
+    els.mistakeList.replaceChildren(
+      ...(weakItems.length ? weakItems.map(createWeakItem) : [createHistoryEmpty('Chưa có câu sai nào được ghi nhận trên trình duyệt này.')])
+    );
   }
 
   function renderStartHistory() {
     const history = readHistory();
     const attempts = history.attempts || [];
+    els.startHistory.hidden = false;
+
     if (!attempts.length) {
-      els.startHistory.hidden = true;
-      els.startWeakList.replaceChildren();
+      els.startHistorySummary.textContent = 'Chưa có lượt làm nào';
+      els.startWeakList.replaceChildren(createHistoryEmpty('Sau khi làm xong một đề, lịch sử và các câu hay sai sẽ hiện ở đây.'));
       return;
     }
 
@@ -388,10 +542,12 @@
     const average = Math.round(
       attempts.reduce((sum, attemptItem) => sum + (attemptItem.score / Math.max(1, attemptItem.total)) * 100, 0) / attempts.length
     );
+    const weakItems = getWeakQuestions(history, 3);
 
-    els.startHistory.hidden = false;
     els.startHistorySummary.textContent = `${attempts.length} lượt • gần nhất ${latest.score}/${latest.total} • TB ${average}%`;
-    els.startWeakList.replaceChildren(...getWeakQuestions(history, 3).map(createWeakItem));
+    els.startWeakList.replaceChildren(
+      ...(weakItems.length ? weakItems.map(createWeakItem) : [createHistoryEmpty('Bạn chưa có câu sai lặp lại. Cứ tiếp tục luyện để hệ thống theo dõi chính xác hơn.')])
+    );
   }
 
   function createWeakItem(item) {
@@ -413,6 +569,13 @@
 
     card.append(title, count, question, detail);
     return card;
+  }
+
+  function createHistoryEmpty(message) {
+    const empty = document.createElement('div');
+    empty.className = 'history-empty';
+    empty.textContent = message;
+    return empty;
   }
 
   function getWeakQuestions(history, limit) {

@@ -307,6 +307,22 @@ button {
   overflow-wrap: anywhere;
 }
 
+.history-empty {
+  min-height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  border: 1px dashed rgba(184, 79, 122, 0.28);
+  border-radius: 8px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.58);
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 650;
+}
+
 .question-source {
   min-height: 24px;
   margin-bottom: 10px;
