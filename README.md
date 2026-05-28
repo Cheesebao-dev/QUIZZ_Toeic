@@ -1,6 +1,6 @@
 # TOEIC Part 5 Quiz
 
-Web quiz tinh gon cho bo 150 cau TOEIC Part 5 trong PDF. Moi luot lay ngau nhien 30 cau, cham diem, va co the lam lai de moi khong gioi han.
+Web quiz tinh gon cho bo 150 cau TOEIC Part 5 trong PDF. Co 2 che do: lam het 150 cau ngau nhien trong 60 phut, hoac test nhanh 30 cau ngau nhien trong 12 phut.
 
 ## Chay web
 

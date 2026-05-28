@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TOEIC Part 5 Quiz</title>
-    <link rel="stylesheet" href="src/styles.css?v=pastel-ui-6" />
+    <link rel="stylesheet" href="src/styles.css?v=pastel-ui-7" />
   </head>
   <body>
     <div class="app-shell">
@@ -15,7 +15,7 @@
 
         <div class="top-metric">
           <span>💬 Câu số</span>
-          <strong id="questionCounter">1/30</strong>
+          <strong id="questionCounter">0/30</strong>
         </div>
 
         <div class="top-metric">
@@ -28,31 +28,15 @@
         <section class="start-view" id="startView">
           <div class="start-panel">
             <div class="start-kicker">TOEIC Part 5</div>
-            <h1>Quiz 30 câu</h1>
+            <h1>Chọn chế độ luyện tập</h1>
             <div class="set-picker" id="setPicker" role="radiogroup" aria-label="Chọn bộ câu hỏi">
-              <button class="set-option is-active" type="button" data-set="all" role="radio" aria-checked="true">
-                Ngẫu nhiên
-                <span>150 câu</span>
+              <button class="set-option" type="button" data-set="full150" role="radio" aria-checked="false">
+                <strong>150 câu ngẫu nhiên</strong>
+                <span>Làm hết toàn bộ 150 câu • 60 phút</span>
               </button>
-              <button class="set-option" type="button" data-set="1" role="radio" aria-checked="false">
-                Test 1
-                <span>30 câu</span>
-              </button>
-              <button class="set-option" type="button" data-set="2" role="radio" aria-checked="false">
-                Test 2
-                <span>30 câu</span>
-              </button>
-              <button class="set-option" type="button" data-set="3" role="radio" aria-checked="false">
-                Test 3
-                <span>30 câu</span>
-              </button>
-              <button class="set-option" type="button" data-set="4" role="radio" aria-checked="false">
-                Test 4
-                <span>30 câu</span>
-              </button>
-              <button class="set-option" type="button" data-set="5" role="radio" aria-checked="false">
-                Test 5
-                <span>30 câu</span>
+              <button class="set-option is-active" type="button" data-set="test30" role="radio" aria-checked="true">
+                <strong>Test 30 câu</strong>
+                <span>Tự chọn ngẫu nhiên 30/150 câu • 12 phút</span>
               </button>
             </div>
             <button class="primary-button start-button" id="startButton" type="button">Bắt đầu</button>
@@ -116,7 +100,7 @@
       </footer>
     </div>
 
-    <script src="src/questions.js?v=pastel-ui-6"></script>
-    <script src="src/app.js?v=pastel-ui-6"></script>
+    <script src="src/questions.js?v=pastel-ui-7"></script>
+    <script src="src/app.js?v=pastel-ui-7"></script>
   </body>
 </html>

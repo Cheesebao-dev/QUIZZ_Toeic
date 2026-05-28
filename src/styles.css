@@ -170,12 +170,12 @@ button {
 
 .set-picker {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
 .set-option {
-  min-height: 74px;
+  min-height: 96px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -191,11 +191,18 @@ button {
   transition: background 180ms ease, border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 }
 
+.set-option strong {
+  color: inherit;
+  font-size: 16px;
+  line-height: 22px;
+}
+
 .set-option span {
   color: var(--muted);
   font-size: 12px;
   line-height: 18px;
   font-weight: 700;
+  text-align: center;
 }
 
 .set-option:hover {
@@ -795,7 +802,7 @@ button {
   }
 
   .set-picker {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .history-head {

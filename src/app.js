@@ -1,6 +1,15 @@
 (function () {
-  const TOTAL_QUESTIONS = 30;
-  const DURATION_SECONDS = 12 * 60;
+  const MODE_CONFIGS = {
+    full150: {
+      questionCount: 150,
+      durationSeconds: 60 * 60,
+    },
+    test30: {
+      questionCount: 30,
+      durationSeconds: 12 * 60,
+    },
+  };
+  const DEFAULT_MODE = 'test30';
   const HISTORY_KEY = 'toeicPart5QuizHistory:v1';
   const QUESTION_FIXES = {
     'T1-102': { options: { D: 'himself' } },
@@ -176,9 +185,10 @@
   let attempt = [];
   let currentIndex = 0;
   let responses = [];
-  let remainingSeconds = DURATION_SECONDS;
+  let remainingSeconds = MODE_CONFIGS[DEFAULT_MODE].durationSeconds;
+  let attemptDurationSeconds = MODE_CONFIGS[DEFAULT_MODE].durationSeconds;
   let timerId = null;
-  let selectedSet = 'all';
+  let selectedSet = DEFAULT_MODE;
   let attemptActive = false;
 
   function randomInt(max) {
@@ -214,10 +224,26 @@
     };
   }
 
+  function getSelectedMode() {
+    return MODE_CONFIGS[selectedSet] || MODE_CONFIGS[DEFAULT_MODE];
+  }
+
+  function getVisibleQuestionCount() {
+    return Math.min(getSelectedMode().questionCount, bank.length);
+  }
+
+  function updateStartMetrics() {
+    remainingSeconds = getSelectedMode().durationSeconds;
+    attemptDurationSeconds = getSelectedMode().durationSeconds;
+    els.questionCounter.textContent = `0/${getVisibleQuestionCount()}`;
+    renderTimer();
+  }
+
   function startAttempt() {
-    const pool = selectedSet === 'all' ? bank : bank.filter((question) => String(question.test) === selectedSet);
-    attempt = shuffled(pool)
-      .slice(0, Math.min(TOTAL_QUESTIONS, pool.length))
+    const mode = getSelectedMode();
+    attemptDurationSeconds = mode.durationSeconds;
+    attempt = shuffled(bank)
+      .slice(0, Math.min(mode.questionCount, bank.length))
       .map((question) => ({
         ...question,
         options: shuffled(
@@ -233,7 +259,7 @@
       }));
     currentIndex = 0;
     responses = attempt.map(() => ({ selected: null, submitted: false }));
-    remainingSeconds = DURATION_SECONDS;
+    remainingSeconds = attemptDurationSeconds;
     attemptActive = true;
     closeConfirm();
     els.startView.hidden = true;
@@ -251,14 +277,12 @@
     responses = [];
     attemptActive = false;
     currentIndex = 0;
-    remainingSeconds = DURATION_SECONDS;
+    updateStartMetrics();
     els.startView.hidden = false;
     els.quizView.hidden = true;
     els.resultView.hidden = true;
     els.actionbar.hidden = true;
     els.restartTopButton.hidden = true;
-    els.questionCounter.textContent = '0/30';
-    renderTimer();
     renderStartHistory();
   }
 
@@ -381,7 +405,7 @@
       return sum + (isCorrectResponse(question, responses[index]) ? 1 : 0);
     }, 0);
     const answered = responses.filter((response) => response.selected).length;
-    const used = DURATION_SECONDS - Math.max(0, remainingSeconds);
+    const used = attemptDurationSeconds - Math.max(0, remainingSeconds);
     const history = recordAttempt(score, answered, used);
 
     els.quizView.hidden = true;
@@ -688,6 +712,7 @@
     if (!button) return;
     selectedSet = button.dataset.set;
     updateSetPicker();
+    updateStartMetrics();
   });
 
   els.startButton.addEventListener('click', startAttempt);
