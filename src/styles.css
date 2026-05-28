@@ -197,6 +197,15 @@ button {
   line-height: 22px;
 }
 
+.set-option.is-compact {
+  min-height: 74px;
+}
+
+.set-option.is-compact strong {
+  font-size: 15px;
+  line-height: 21px;
+}
+
 .set-option span {
   color: var(--muted);
   font-size: 12px;

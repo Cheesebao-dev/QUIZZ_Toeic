@@ -3,10 +3,42 @@
     full150: {
       questionCount: 150,
       durationSeconds: 60 * 60,
+      order: 'random',
     },
     test30: {
       questionCount: 30,
       durationSeconds: 12 * 60,
+      order: 'random',
+    },
+    test1: {
+      questionCount: 30,
+      durationSeconds: 12 * 60,
+      test: 1,
+      order: 'sequential',
+    },
+    test2: {
+      questionCount: 30,
+      durationSeconds: 12 * 60,
+      test: 2,
+      order: 'sequential',
+    },
+    test3: {
+      questionCount: 30,
+      durationSeconds: 12 * 60,
+      test: 3,
+      order: 'sequential',
+    },
+    test4: {
+      questionCount: 30,
+      durationSeconds: 12 * 60,
+      test: 4,
+      order: 'sequential',
+    },
+    test5: {
+      questionCount: 30,
+      durationSeconds: 12 * 60,
+      test: 5,
+      order: 'sequential',
     },
   };
   const DEFAULT_MODE = 'test30';
@@ -228,8 +260,14 @@
     return MODE_CONFIGS[selectedSet] || MODE_CONFIGS[DEFAULT_MODE];
   }
 
+  function getModePool(mode) {
+    const pool = mode.test ? bank.filter((question) => question.test === mode.test) : bank;
+    return pool.slice().sort((a, b) => a.test - b.test || a.sourceNumber - b.sourceNumber);
+  }
+
   function getVisibleQuestionCount() {
-    return Math.min(getSelectedMode().questionCount, bank.length);
+    const mode = getSelectedMode();
+    return Math.min(mode.questionCount, getModePool(mode).length);
   }
 
   function updateStartMetrics() {
@@ -241,9 +279,11 @@
 
   function startAttempt() {
     const mode = getSelectedMode();
+    const pool = getModePool(mode);
+    const selectedQuestions = mode.order === 'sequential' ? pool : shuffled(pool);
     attemptDurationSeconds = mode.durationSeconds;
-    attempt = shuffled(bank)
-      .slice(0, Math.min(mode.questionCount, bank.length))
+    attempt = selectedQuestions
+      .slice(0, Math.min(mode.questionCount, pool.length))
       .map((question) => ({
         ...question,
         options: shuffled(
