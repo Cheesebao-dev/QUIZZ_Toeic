@@ -1,4 +1,14 @@
 (function () {
+  function updateViewportHeight() {
+    const height = window.visualViewport?.height || window.innerHeight;
+    document.documentElement.style.setProperty('--app-height', `${height}px`);
+  }
+
+  updateViewportHeight();
+  window.addEventListener('resize', updateViewportHeight);
+  window.visualViewport?.addEventListener('resize', updateViewportHeight);
+  window.visualViewport?.addEventListener('scroll', updateViewportHeight);
+
   const MODE_CONFIGS = {
     full150: {
       questionCount: 150,
