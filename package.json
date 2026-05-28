@@ -1,0 +1,27 @@
+{
+  "name": "toeic_yeu",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "extract": "node scripts/extract-questions.mjs",
+    "test": "node scripts/validate-data.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cheesebao-dev/QUIZZ_Toeic.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Cheesebao-dev/QUIZZ_Toeic/issues"
+  },
+  "homepage": "https://github.com/Cheesebao-dev/QUIZZ_Toeic#readme",
+  "devDependencies": {
+    "pdf-parse": "^2.4.5",
+    "sharp": "^0.34.5",
+    "tesseract.js": "^7.0.0"
+  }
+}
