@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TOEIC Part 5 Quiz</title>
-    <link rel="stylesheet" href="src/styles.css?v=pastel-ui-4" />
+    <link rel="stylesheet" href="src/styles.css?v=pastel-ui-5" />
   </head>
   <body>
     <div class="app-shell">
@@ -56,6 +56,13 @@
               </button>
             </div>
             <button class="primary-button start-button" id="startButton" type="button">Bắt đầu</button>
+            <section class="start-history" id="startHistory" hidden>
+              <div class="history-head">
+                <strong>Lịch sử luyện tập</strong>
+                <span id="startHistorySummary"></span>
+              </div>
+              <div class="weak-list compact" id="startWeakList"></div>
+            </section>
           </div>
         </section>
 
@@ -68,10 +75,21 @@
 
         <section class="result-view" id="resultView" hidden>
           <div class="score-number" id="scoreNumber"></div>
+          <div class="score-badge" id="scoreBadge"></div>
           <div class="score-caption" id="scoreCaption"></div>
+          <p class="score-message" id="scoreMessage"></p>
+          <div class="result-stats" id="resultStats"></div>
           <div class="result-actions">
             <button class="primary-button" id="restartResultButton" type="button">Làm lại đề mới</button>
           </div>
+          <section class="mistake-panel" id="mistakePanel" hidden>
+            <div class="history-head">
+              <strong>Câu hay mắc lỗi</strong>
+              <span>Dựa trên lịch sử làm bài trên máy này</span>
+            </div>
+            <div class="weak-list" id="mistakeList"></div>
+          </section>
+          <h2 class="section-title">Chi tiết bài làm</h2>
           <div class="review-list" id="reviewList"></div>
         </section>
       </main>
@@ -98,7 +116,7 @@
       </footer>
     </div>
 
-    <script src="src/questions.js?v=pastel-ui-4"></script>
-    <script src="src/app.js?v=pastel-ui-4"></script>
+    <script src="src/questions.js?v=pastel-ui-5"></script>
+    <script src="src/app.js?v=pastel-ui-5"></script>
   </body>
 </html>

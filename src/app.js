@@ -1,6 +1,7 @@
 (function () {
   const TOTAL_QUESTIONS = 30;
   const DURATION_SECONDS = 12 * 60;
+  const HISTORY_KEY = 'toeicPart5QuizHistory:v1';
   const bank = Array.isArray(window.QUESTION_BANK) ? window.QUESTION_BANK : [];
 
   const els = {
@@ -25,7 +26,15 @@
     restartTopButton: document.getElementById('restartTopButton'),
     restartResultButton: document.getElementById('restartResultButton'),
     scoreNumber: document.getElementById('scoreNumber'),
+    scoreBadge: document.getElementById('scoreBadge'),
     scoreCaption: document.getElementById('scoreCaption'),
+    scoreMessage: document.getElementById('scoreMessage'),
+    resultStats: document.getElementById('resultStats'),
+    mistakePanel: document.getElementById('mistakePanel'),
+    mistakeList: document.getElementById('mistakeList'),
+    startHistory: document.getElementById('startHistory'),
+    startHistorySummary: document.getElementById('startHistorySummary'),
+    startWeakList: document.getElementById('startWeakList'),
     reviewList: document.getElementById('reviewList'),
   };
 
@@ -100,6 +109,7 @@
     els.restartTopButton.hidden = true;
     els.questionCounter.textContent = '0/30';
     renderTimer();
+    renderStartHistory();
   }
 
   function startTimer() {
@@ -186,7 +196,7 @@
   }
 
   function renderFeedback(question, response) {
-    const correct = response.selected === question.answer;
+    const correct = isCorrectResponse(question, response);
     const correctLetter = getCorrectLetter(question);
     els.feedbackLine.textContent = correct ? 'Chính xác' : `Đáp án đúng: ${correctLetter}`;
     els.feedbackLine.classList.add(correct ? 'correct' : 'wrong');
@@ -222,15 +232,71 @@
     }, 0);
     const answered = responses.filter((response) => response.selected).length;
     const used = DURATION_SECONDS - Math.max(0, remainingSeconds);
+    const history = recordAttempt(score, answered, used);
 
     els.quizView.hidden = true;
     els.resultView.hidden = false;
     els.actionbar.hidden = true;
     els.restartTopButton.hidden = false;
     els.questionCounter.textContent = `${attempt.length}/${attempt.length}`;
-    els.scoreNumber.textContent = `${score}/${attempt.length}`;
-    els.scoreCaption.textContent = `${answered} câu đã chọn • ${formatDuration(used)}`;
+    renderResultSummary(score, attempt.length, answered, used, history);
+    renderMistakeHistory(history);
     els.reviewList.replaceChildren(...attempt.map((question, index) => createReviewItem(question, responses[index], index)));
+  }
+
+  function renderResultSummary(score, total, answered, used, history) {
+    const percent = total ? Math.round((score / total) * 100) : 0;
+    const wrong = total - score;
+    const level = getScoreLevel(percent);
+
+    els.scoreNumber.textContent = `${score}/${total}`;
+    els.scoreBadge.textContent = `${level.label} • ${percent}%`;
+    els.scoreCaption.textContent = `${answered} câu đã chọn • ${formatDuration(used)}`;
+    els.scoreMessage.textContent = level.message;
+    els.resultStats.replaceChildren(
+      createStatCard('Đúng', `${score} câu`),
+      createStatCard('Sai / bỏ trống', `${wrong} câu`),
+      createStatCard('Lượt đã làm', `${history.attempts.length}`)
+    );
+  }
+
+  function getScoreLevel(percent) {
+    if (percent >= 90) {
+      return {
+        label: 'Xuất sắc',
+        message: 'Bạn đang kiểm soát rất tốt Part 5. Giữ nhịp luyện tập này và tập trung vào vài câu sai còn lại.',
+      };
+    }
+    if (percent >= 75) {
+      return {
+        label: 'Rất tốt',
+        message: 'Nền tảng đã khá chắc. Chỉ cần rà lại các câu sai lặp lại là điểm sẽ tăng rất nhanh.',
+      };
+    }
+    if (percent >= 55) {
+      return {
+        label: 'Đang tiến bộ',
+        message: 'Bạn đã có đà rồi. Hãy ưu tiên ôn những câu xuất hiện trong mục hay mắc lỗi trước.',
+      };
+    }
+    return {
+      label: 'Cần củng cố',
+      message: 'Chưa sao cả. Mỗi lần làm sai là thêm một dấu mốc để biết nên học phần nào tiếp theo.',
+    };
+  }
+
+  function createStatCard(label, value) {
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+
+    const valueNode = document.createElement('strong');
+    valueNode.textContent = value;
+
+    const labelNode = document.createElement('span');
+    labelNode.textContent = label;
+
+    card.append(valueNode, labelNode);
+    return card;
   }
 
   function createReviewItem(question, response, index) {
@@ -250,6 +316,146 @@
     return item;
   }
 
+  function recordAttempt(score, answered, usedSeconds) {
+    const history = readHistory();
+    const now = new Date().toISOString();
+    const wrongIds = [];
+
+    attempt.forEach((question, index) => {
+      const response = responses[index];
+      const correct = isCorrectResponse(question, response);
+      const id = getQuestionId(question);
+      const selectedOption = getSelectedOption(question, response);
+      const correctOption = getCorrectOption(question);
+
+      const existing = history.questions[id] || {};
+      const next = {
+        id,
+        test: question.test,
+        sourceNumber: question.sourceNumber,
+        question: question.question,
+        seen: Number(existing.seen || 0) + 1,
+        correct: Number(existing.correct || 0) + (correct ? 1 : 0),
+        wrong: Number(existing.wrong || 0) + (correct ? 0 : 1),
+        lastAt: now,
+        lastSelected: selectedOption?.text || 'Chưa chọn',
+        lastSelectedLetter: response?.selected || '',
+        correctAnswer: correctOption?.text || '',
+        correctLetter: getCorrectLetter(question),
+      };
+
+      if (!correct) {
+        next.lastWrongAt = now;
+        wrongIds.push(id);
+      } else {
+        next.lastWrongAt = existing.lastWrongAt || '';
+      }
+
+      history.questions[id] = next;
+    });
+
+    history.attempts.unshift({
+      id: now,
+      at: now,
+      set: selectedSet,
+      score,
+      total: attempt.length,
+      answered,
+      usedSeconds,
+      wrongIds,
+    });
+    history.attempts = history.attempts.slice(0, 50);
+    saveHistory(history);
+    return history;
+  }
+
+  function renderMistakeHistory(history) {
+    const weakItems = getWeakQuestions(history, 5);
+    els.mistakePanel.hidden = weakItems.length === 0;
+    els.mistakeList.replaceChildren(...weakItems.map(createWeakItem));
+  }
+
+  function renderStartHistory() {
+    const history = readHistory();
+    const attempts = history.attempts || [];
+    if (!attempts.length) {
+      els.startHistory.hidden = true;
+      els.startWeakList.replaceChildren();
+      return;
+    }
+
+    const latest = attempts[0];
+    const average = Math.round(
+      attempts.reduce((sum, attemptItem) => sum + (attemptItem.score / Math.max(1, attemptItem.total)) * 100, 0) / attempts.length
+    );
+
+    els.startHistory.hidden = false;
+    els.startHistorySummary.textContent = `${attempts.length} lượt • gần nhất ${latest.score}/${latest.total} • TB ${average}%`;
+    els.startWeakList.replaceChildren(...getWeakQuestions(history, 3).map(createWeakItem));
+  }
+
+  function createWeakItem(item) {
+    const card = document.createElement('div');
+    card.className = 'weak-item';
+
+    const title = document.createElement('strong');
+    title.textContent = `Test ${item.test} • Câu ${item.sourceNumber}`;
+
+    const count = document.createElement('span');
+    count.className = 'weak-count';
+    count.textContent = `Sai ${item.wrong} lần`;
+
+    const question = document.createElement('p');
+    question.textContent = item.question;
+
+    const detail = document.createElement('small');
+    detail.textContent = `Gần nhất chọn: ${item.lastSelected || 'Chưa chọn'} • Đáp án: ${item.correctAnswer || item.correctLetter}`;
+
+    card.append(title, count, question, detail);
+    return card;
+  }
+
+  function getWeakQuestions(history, limit) {
+    return Object.values(history.questions || {})
+      .filter((item) => Number(item.wrong || 0) > 0)
+      .sort((a, b) => {
+        const wrongDiff = Number(b.wrong || 0) - Number(a.wrong || 0);
+        if (wrongDiff) return wrongDiff;
+        const rateA = Number(a.wrong || 0) / Math.max(1, Number(a.seen || 1));
+        const rateB = Number(b.wrong || 0) / Math.max(1, Number(b.seen || 1));
+        if (rateB !== rateA) return rateB - rateA;
+        return String(b.lastWrongAt || '').localeCompare(String(a.lastWrongAt || ''));
+      })
+      .slice(0, limit);
+  }
+
+  function readHistory() {
+    try {
+      const raw = window.localStorage.getItem(HISTORY_KEY);
+      if (!raw) return createEmptyHistory();
+      const parsed = JSON.parse(raw);
+      return {
+        version: 1,
+        attempts: Array.isArray(parsed.attempts) ? parsed.attempts : [],
+        questions: parsed.questions && typeof parsed.questions === 'object' ? parsed.questions : {},
+      };
+    } catch (error) {
+      return createEmptyHistory();
+    }
+  }
+
+  function saveHistory(history) {
+    try {
+      window.localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    } catch (error) {
+      // Lịch sử là tính năng phụ; nếu trình duyệt chặn lưu trữ thì bài quiz vẫn chạy bình thường.
+    }
+  }
+
+  function createEmptyHistory() {
+    return { version: 1, attempts: [], questions: {} };
+  }
+
   function formatDuration(totalSeconds) {
     const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
     const seconds = String(totalSeconds % 60).padStart(2, '0');
@@ -258,6 +464,19 @@
 
   function getCorrectLetter(question) {
     return question.options.find((option) => option.isCorrect)?.letter || question.answer;
+  }
+
+  function getCorrectOption(question) {
+    return question.options.find((option) => option.isCorrect);
+  }
+
+  function getSelectedOption(question, response) {
+    if (!response?.selected) return null;
+    return question.options.find((option) => option.letter === response.selected) || null;
+  }
+
+  function getQuestionId(question) {
+    return question.id || `T${question.test}-${question.sourceNumber}`;
   }
 
   function isCorrectResponse(question, response) {
